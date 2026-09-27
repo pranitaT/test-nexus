@@ -1,83 +1,183 @@
-# AI Impactathon 2026 — AI-Powered Intelligent Regression Testing
+# RegrAI — AI-Powered Intelligent Regression Testing
 
-Flask-based hackathon MVP for the assigned AI regression-testing problem.
+A Flask + static-web application for the AI Impactathon regression-testing challenge.
 
-## What it does
+## The judge story
 
-Source changes + user story + defects + telemetry + previous test results
-are sent through an explicit AI workflow:
+**RegrAI does not simply generate tests. It makes a release decision explainable.**
 
-change analysis -> impacted modules -> risk -> optimized regression suite
--> additional scenarios -> Playwright test generation -> traceability.
+`Evidence → Impact → Risk → Optimized Suite → Coverage Gaps → Automation`
 
-## Hackathon constraints reflected here
+The platform combines:
+- source-code change evidence
+- user story / business intent
+- known defects
+- application telemetry
+- previous test results
+- existing test catalog
 
-- Use approved Persistent environments/resources only.
-- Use self-created/mock/public sample data.
-- Do not use client code/data/applications/project information.
-- Cloud budget: $50/team/subscription.
-- LLM budget: $10/team.
-- Use the supplied GenAI Hub gateway.
-- Keep API keys server-side.
-- Use the Gig Garage GitLab repository and deployment process.
-- Mandatory submission artifacts include deck, demo recording, repository and IaC.
+It then produces an evidence-backed impact analysis, prioritizes a smaller regression suite, generates missing risk scenarios, and hands those scenarios to Playwright automation.
 
-## Gateway
+## What makes the demo compelling
 
-The supplied GenAI Hub Starter uses:
+1. **Impact score + confidence** — immediately communicates risk.
+2. **Decision traceability** — shows Change → Module → Risk.
+3. **Risk-aware suite optimization** — selected and deferred tests are visible.
+4. **Execution economics** — estimated minutes and reduction versus the full suite.
+5. **Coverage-gap generation** — AI creates targeted scenarios for the affected journey.
+6. **Automation handoff** — generated Playwright is visible as the final engineering artifact.
+7. **Transparent architecture** — the GenAI Hub is the only LLM gateway; no client data is required.
 
-MODEL
-GATEWAY_BASE_URL
-GATEWAY_API_KEY
+## Repository
 
-This repository follows that pattern and defaults to `gpt-5-gig`.
+```text
+AI_Impactathon_Flask_Regression/
+├── backend/
+│   ├── app.py
+│   ├── requirements.txt
+│   └── .env.example
+├── frontend/
+│   ├── templates/index.html
+│   └── static/{css/app.css,js/app.js,js/api.js}
+├── sample-data/demo-project.json
+├── tests/test_app.py
+├── docs/
+├── iac/
+├── Dockerfile
+└── docker-compose.yml
+```
 
-## Local run
+## 1. Local setup — Windows PowerShell
 
-```bash
-cd backend
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-# Linux/macOS: source .venv/bin/activate
-pip install -r requirements.txt
-copy .env.example .env
-python app.py
+```powershell
+cd AI_Impactathon_Flask_Regression
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r backend\requirements.txt
+pip install pytest
+Copy-Item backend\.env.example backend\.env
+notepad backend\.env
+```
+
+Set the team GenAI Hub key in `backend/.env`. **Do not commit this file or paste the key into Git.**
+
+Then:
+
+```powershell
+python backend\app.py
 ```
 
 Open:
 
+```text
 http://localhost:5000
+```
 
-## Deployment order
+## 2. End-to-end local demo
 
-1. Deploy backend first.
-2. Copy backend App ID.
-3. Configure the frontend with that backend App ID.
-4. Deploy frontend.
-5. Copy frontend App ID.
-6. Verify every backend network request contains the required App ID.
+Click in this order:
 
-The supplied material does not state the exact Gig Garage URL syntax, so App-ID route construction is isolated in:
+1. **Load live demo scenario**
+2. **Analyze change impact**
+3. Review the impacted modules, risk signals and decision traceability.
+4. **Build optimized suite**
+5. Review selected vs deferred tests and execution reduction.
+6. **Generate missing scenarios**
+7. Review the AI-generated failure-mode scenarios.
+8. Enter the approved application/test URL.
+9. **Generate Playwright**
+10. Show the generated automation in the final panel.
 
-`frontend/static/js/api.js`
+This is the recommended 3–5 minute judge demonstration.
 
-Default style:
+## 3. API smoke tests
 
-`/<BACKEND_APP_ID>/api/...`
+PowerShell:
 
-If the official deployment guide specifies another exact shape, change that one function only.
+```powershell
+Invoke-RestMethod http://localhost:5000/health
+Invoke-RestMethod http://localhost:5000/api/demo
+```
 
-## No unnecessary Azure services
+Run automated tests:
 
-The application uses the supplied GenAI gateway. It does not require creating Azure OpenAI or other new Azure services for the core demo.
+```powershell
+pytest -q
+```
 
-## Demo
+Expected: all tests pass.
 
-1. Load Demo.
-2. Analyze Impact.
-3. Recommend Suite.
-4. Generate Scenarios.
-5. Generate Playwright.
-6. Show traceability.
+## 4. Docker
 
-The demo data is fictional Retail Portal data.
+```powershell
+docker build -t regr-ai .
+docker run --rm -p 5000:5000 --env-file backend\.env regr-ai
+```
+
+Then open `http://localhost:5000`.
+
+## 5. Gig Garage deployment
+
+Follow the supplied hackathon deployment workflow and use the provided GitLab repository/environment. Do not create unapproved cloud resources.
+
+Recommended sequence:
+
+1. Push this repository to the assigned Gig Garage GitLab repo.
+2. Deploy the **backend application first**.
+3. Copy the backend App ID from the deployment result.
+4. Configure the frontend with that backend App ID.
+5. Deploy the frontend application.
+6. Copy the frontend App ID.
+7. Validate every browser network request.
+8. Confirm API calls reach the backend with the required App-ID routing.
+9. Run the complete demo in the deployed environment.
+
+The exact App-ID URL syntax is platform-specific. This project centralizes routing in `frontend/static/js/api.js`; use the official Gig Garage syntax supplied by the event rather than inventing a URL format.
+
+## 6. Secrets and constraints
+
+- Use the approved GenAI Hub endpoint and team key supplied by the hackathon.
+- Never commit the real gateway key.
+- Use mock/public data only.
+- Do not use client code, client data, client applications or client project information.
+- Stay within the event's team LLM/cloud budget.
+- Do not disable TLS verification as a shortcut for certificate issues.
+- Do not add arbitrary Azure resources when the event environment does not permit them.
+
+## 7. AI workflow
+
+### Agent 1 — Change Impact Analyst
+Inputs: code changes + user story + defects + telemetry + previous results.
+Output: impacted modules, impact score, confidence, risk signals and traceability.
+
+### Agent 2 — Regression Optimizer
+Inputs: impact analysis + test catalog + evidence.
+Output: selected tests, priorities, rationale, deferred tests and estimated execution time.
+
+### Agent 3 — Coverage Gap Engineer
+Inputs: impact analysis + selected tests + evidence.
+Output: targeted additional regression scenarios with steps and expected results.
+
+### Automation Handoff
+The scenario objects are converted into Playwright test scaffolding. Browser execution is intentionally separated so only approved browser binaries and deployment images are used.
+
+## 8. Architecture
+
+```text
+Browser UI
+   │
+   ▼
+Flask API
+   ├── Evidence / demo data
+   ├── Impact Analyst ───────┐
+   ├── Suite Optimizer       │
+   ├── Scenario Generator    ├── Approved GenAI Hub
+   └── Playwright Handoff ───┘
+```
+
+No database is required for the demo. The design keeps the domain logic in the backend and the presentation in the static frontend so it can be moved into an approved deployment image without introducing extra infrastructure.
+
+## 9. Important distinction
+
+The deterministic fallback code exists only for local UX validation when explicitly requested by the developer/tester. It is labeled in API output as `deterministic-fallback` and must not be represented as an LLM result in the judging demo.
