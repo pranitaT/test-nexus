@@ -1,0 +1,21 @@
+{
+  "python_ast_parse": true,
+  "missing_files": [],
+  "source_checks": {
+    "flask_import": true,
+    "gateway_openai_client": true,
+    "gateway_base_url": true,
+    "gateway_api_key": true,
+    "model_config": true,
+    "backend_app_id": true,
+    "health_endpoint": true,
+    "demo_endpoint": true,
+    "impact_endpoint": true,
+    "suite_endpoint": true,
+    "scenario_endpoint": true,
+    "playwright_endpoint": true,
+    "app_id_prefixed_routes": true,
+    "no_real_gateway_key_in_backend": true
+  },
+  "dependency_test_status": "BLOCKED: Flask could not be installed because this runtime has no package-network access."
+}

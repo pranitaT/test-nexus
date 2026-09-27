@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+node_modules/
+dist/
+build/
+playwright-report/
+test-results/
+*.log
+.vscode/
+.idea/

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Regression Intelligence</title>
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<header class="hero">
+<div>
+<div class="eyebrow">AI IMPACTATHON 2026 · QUALITY ENGINEERING</div>
+<h1>Intelligent Regression Testing</h1>
+<p>Change impact → risk → optimized regression suite → AI scenarios → automation.</p>
+</div>
+<div class="gateway"><b>GENAI HUB</b><span id="backend-status">Checking backend...</span></div>
+</header>
+<main>
+<div id="error" class="error hidden"></div>
+<div class="toolbar">
+<button id="demo">Load Demo</button>
+<button id="impact">1. Analyze Impact</button>
+<button id="suite">2. Recommend Suite</button>
+<button id="scenarios">3. Generate Scenarios</button>
+</div>
+<div class="stats">
+<div class="stat"><b id="stat-modules">0</b><span>Impacted modules</span></div>
+<div class="stat"><b id="stat-risk">0</b><span>High risks</span></div>
+<div class="stat"><b id="stat-tests">0</b><span>Selected tests</span></div>
+<div class="stat"><b id="stat-scenarios">0</b><span>Generated scenarios</span></div>
+</div>
+<section class="card">
+<h2>1 · Change & Evidence</h2>
+<label>Project name</label><input id="project_name">
+<label>Source-code changes / diff</label><textarea id="source_changes"></textarea>
+<label>User story</label><textarea id="user_story"></textarea>
+<label>Known defects</label><textarea id="defects"></textarea>
+<label>Application telemetry</label><textarea id="telemetry"></textarea>
+<label>Previous test execution results</label><textarea id="previous_results"></textarea>
+</section>
+<section id="impact-section" class="card hidden">
+<h2>2 · AI Impact Analysis</h2>
+<p id="impact-summary" class="summary"></p>
+<h3>Impacted modules</h3><div id="modules" class="grid"></div>
+<h3>Risk factors</h3><div id="risks"></div>
+<h3>Traceability</h3><div id="traceability"></div>
+</section>
+<section id="suite-section" class="card hidden">
+<h2>3 · Optimized Regression Suite</h2>
+<p id="suite-strategy" class="summary"></p>
+<div id="selected-tests" class="grid"></div>
+</section>
+<section id="scenario-section" class="card hidden">
+<h2>4 · AI-Generated Regression Scenarios</h2>
+<div id="generated-scenarios" class="grid"></div>
+</section>
+<section id="playwright-section" class="card hidden">
+<h2>5 · Browser Automation</h2>
+<label>Application / test URL</label>
+<input id="test_url" value="https://example.com">
+<div class="toolbar"><button id="generate-playwright">Generate Playwright</button><button id="run-playwright">Prepare Browser Execution</button></div>
+<pre id="playwright-output"></pre>
+</section>
+</main>
+<footer><span>AI Impactathon 2026</span><span>Approved environments + mock/public data only.</span></footer>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

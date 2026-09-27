@@ -1,0 +1,8 @@
+{
+  "project_name": "Retail Portal",
+  "source_changes": "Changed checkout/payment.ts, checkout/PaymentForm.tsx and api/paymentClient.ts. Retired legacy payment endpoint.",
+  "user_story": "As a customer, I want to pay by card so that I can complete checkout.",
+  "defects": "Intermittent payment timeout and duplicate-submit defects.",
+  "telemetry": "Payment API 5xx increased during peak traffic. Checkout abandonment is elevated.",
+  "previous_results": "CheckoutPayment-01 failed twice in the last 10 runs."
+}
