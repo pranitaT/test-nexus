@@ -1,46 +1,43 @@
-# Gig Garage deployment checklist
+# Deployment Runbook
 
-## Backend first
+## Local
 
-Deploy the Flask backend first.
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r backend\requirements.txt
+Copy-Item backend\.env.example backend\.env
+# add the team GenAI Hub key
+python backend\app.py
+```
 
-Configure:
+## Pre-deployment checklist
 
-MODEL
-GATEWAY_BASE_URL
-GATEWAY_API_KEY
-APP_ID
+- [ ] `pytest -q` passes.
+- [ ] `backend/.env` is not committed.
+- [ ] No real gateway key appears in source, README, screenshots or deck.
+- [ ] Only mock/public evidence is loaded.
+- [ ] No unapproved Azure resource is required.
+- [ ] `GET /health` works.
+- [ ] `GET /api/demo` works.
+- [ ] AI impact analysis works through the approved GenAI Hub.
+- [ ] Suite optimization works.
+- [ ] Scenario generation works.
+- [ ] Playwright generation works.
 
-Copy the backend App ID from the deployed URL.
+## Gig Garage
 
-## Frontend
+1. Deploy backend first using the event-provided workflow.
+2. Copy the backend App ID.
+3. Set the frontend backend App ID using the routing mechanism supported by Gig Garage.
+4. Deploy frontend.
+5. Copy frontend App ID.
+6. Open browser DevTools → Network.
+7. Verify frontend API calls contain the required backend App ID according to the official platform syntax.
+8. Run the full demo.
 
-Configure the backend App ID in:
+Do not guess the platform's App-ID URL format. Use the exact format in the official event deployment instructions.
 
-frontend/static/js/api.js
+## Browser automation
 
-Default:
-
-`/<BACKEND_APP_ID>/api/...`
-
-The supplied participant text does not define another exact syntax.
-
-Deploy frontend second and capture its App ID.
-
-## Network verification
-
-Browser DevTools → Network.
-
-Verify the App ID is present for:
-- /api/demo
-- /api/analyze-impact
-- /api/recommend-suite
-- /api/generate-scenarios
-- /api/generate-playwright
-- /api/run-playwright
-
-502/503/blank page should trigger an App-ID route check first.
-
-## Secret
-
-Never expose the gateway key in frontend code or Git.
+The repository generates Playwright scaffolding but does not silently install or execute browser binaries. Enable actual browser execution only in an approved image/environment that includes the required browsers.

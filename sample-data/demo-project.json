@@ -1,8 +1,19 @@
 {
   "project_name": "Retail Portal",
-  "source_changes": "Changed checkout/payment.ts, checkout/PaymentForm.tsx and api/paymentClient.ts. Retired legacy payment endpoint.",
+  "release": "v2.8.0 · Payment reliability release",
+  "source_changes": "Changed src/checkout/payment.ts, src/checkout/PaymentForm.tsx and src/api/paymentClient.ts. Retired a legacy payment endpoint. Added retry handling around payment timeout.",
   "user_story": "As a customer, I want to pay by card so that I can complete checkout.",
-  "defects": "Intermittent payment timeout and duplicate-submit defects.",
-  "telemetry": "Payment API 5xx increased during peak traffic. Checkout abandonment is elevated.",
-  "previous_results": "CheckoutPayment-01 failed twice in the last 10 runs."
+  "defects": "Intermittent payment timeout and duplicate-submit defects were reported in checkout.",
+  "telemetry": "Payment API 5xx increased during peak traffic. Checkout abandonment is elevated. Payment latency is above the normal baseline.",
+  "previous_results": "CheckoutPayment-01 failed twice in the last 10 runs. CheckoutPayment-02 had one timeout. Login and catalog tests passed.",
+  "test_catalog": [
+    {"test_id":"TC-001","name":"Login with valid user","module":"Authentication","risk":"Medium","duration_min":1.5,"tags":["smoke"]},
+    {"test_id":"TC-010","name":"Browse product catalog","module":"Catalog","risk":"Low","duration_min":2.0,"tags":["smoke"]},
+    {"test_id":"TC-020","name":"Add product to cart","module":"Cart","risk":"Medium","duration_min":2.5,"tags":["checkout"]},
+    {"test_id":"TC-030","name":"Checkout with card","module":"Checkout","risk":"High","duration_min":4.0,"tags":["critical","payment"]},
+    {"test_id":"TC-031","name":"Prevent duplicate payment submit","module":"Checkout","risk":"High","duration_min":3.0,"tags":["payment","defect"]},
+    {"test_id":"TC-032","name":"Payment timeout recovery","module":"Checkout","risk":"High","duration_min":3.5,"tags":["payment","defect"]},
+    {"test_id":"TC-040","name":"Order confirmation","module":"Orders","risk":"Medium","duration_min":2.0,"tags":["checkout"]},
+    {"test_id":"TC-050","name":"Logout","module":"Authentication","risk":"Low","duration_min":1.0,"tags":["smoke"]}
+  ]
 }

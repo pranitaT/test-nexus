@@ -1,154 +1,18 @@
-const state = {context:{}, impact:null, suite:null, scenarios:null};
-const $ = id => document.getElementById(id);
-
-function error(message) {
-  $("error").textContent = message || "";
-  $("error").classList.toggle("hidden", !message);
-}
-
-function context() {
-  return {
-    project_name: $("project_name").value,
-    source_changes: $("source_changes").value,
-    user_story: $("user_story").value,
-    defects: $("defects").value,
-    telemetry: $("telemetry").value,
-    previous_results: $("previous_results").value,
-    test_catalog: state.context.test_catalog || []
-  };
-}
-
-function writeContext(x) {
-  state.context = x;
-  $("project_name").value = x.project_name || "";
-  $("source_changes").value = x.source_changes || "";
-  $("user_story").value = x.user_story || "";
-  $("defects").value = x.defects || "";
-  $("telemetry").value = x.telemetry || "";
-  $("previous_results").value = x.previous_results || "";
-}
-
-function badge(x) {
-  return `<span class="badge ${(x || "").toLowerCase()}">${x || ""}</span>`;
-}
-
-function stats() {
-  $("stat-modules").textContent = state.impact?.impacted_modules?.length || 0;
-  $("stat-risk").textContent = state.impact?.risk_factors?.filter(x => x.severity === "High").length || 0;
-  $("stat-tests").textContent = state.suite?.selected_tests?.length || 0;
-  $("stat-scenarios").textContent = state.scenarios?.scenarios?.length || 0;
-}
-
-async function loadDemo() {
-  try { writeContext(await api("/api/demo")); error(""); }
-  catch(e) { error(e.message); }
-}
-
-async function analyze() {
-  try {
-    state.context = context();
-    state.impact = await api("/api/analyze-impact", {
-      method:"POST", body:JSON.stringify(state.context)
-    });
-    $("impact-section").classList.remove("hidden");
-    $("impact-summary").textContent = state.impact.summary || "";
-    $("modules").innerHTML = (state.impact.impacted_modules || []).map(m =>
-      `<div class="item"><div class="item-head"><strong>${m.module}</strong>${badge(m.impact)}</div>
-      <p>${m.change_evidence}</p><small>Confidence: ${m.confidence}%</small></div>`
-    ).join("");
-    $("risks").innerHTML = (state.impact.risk_factors || []).map(r =>
-      `<div class="row">${badge(r.severity)}<div><strong>${r.risk}</strong><p>${r.evidence}</p></div></div>`
-    ).join("");
-    $("traceability").innerHTML = (state.impact.traceability || []).map(t =>
-      `<div class="trace"><span>${t.change}</span><b>→</b><span>${t.module}</span><b>→</b><span>${t.risk}</span></div>`
-    ).join("");
-    stats(); error("");
-  } catch(e) { error(e.message); }
-}
-
-async function suite() {
-  if (!state.impact) return error("Analyze impact first.");
-  try {
-    const x = await api("/api/recommend-suite", {
-      method:"POST",
-      body:JSON.stringify({...context(), impact_analysis:state.impact})
-    });
-    state.suite = x;
-    $("suite-section").classList.remove("hidden");
-    $("suite-strategy").textContent = x.strategy || "";
-    $("selected-tests").innerHTML = (x.selected_tests || []).map(t =>
-      `<div class="item"><div class="item-head"><strong>${t.test_id} · ${t.name}</strong>${badge(t.priority)}</div>
-      <p>${t.reason}</p><small>Coverage: ${(t.coverage || []).join(", ")}</small></div>`
-    ).join("");
-    stats(); error("");
-  } catch(e) { error(e.message); }
-}
-
-async function scenarios() {
-  if (!state.impact) return error("Analyze impact first.");
-  try {
-    state.scenarios = await api("/api/generate-scenarios", {
-      method:"POST",
-      body:JSON.stringify({
-        ...context(),
-        impact_analysis:state.impact,
-        selected_tests:state.suite?.selected_tests || []
-      })
-    });
-    $("scenario-section").classList.remove("hidden");
-    $("playwright-section").classList.remove("hidden");
-    $("generated-scenarios").innerHTML = (state.scenarios.scenarios || []).map(s =>
-      `<div class="item"><div class="item-head"><strong>${s.id} · ${s.title}</strong>${badge(s.risk)}</div>
-      <small>${s.module}</small><ul>${(s.steps || []).map(x => `<li>${x}</li>`).join("")}</ul>
-      <p><strong>Expected:</strong> ${s.expected}</p></div>`
-    ).join("");
-    stats(); error("");
-  } catch(e) { error(e.message); }
-}
-
-async function playwright() {
-  try {
-    const x = await api("/api/generate-playwright", {
-      method:"POST",
-      body:JSON.stringify({
-        test_url:$("test_url").value,
-        scenarios:state.scenarios?.scenarios || []
-      })
-    });
-    $("playwright-output").textContent = x.generated_test || "";
-    error("");
-  } catch(e) { error(e.message); }
-}
-
-async function prepareRun() {
-  try {
-    const x = await api("/api/run-playwright", {
-      method:"POST",
-      body:JSON.stringify({
-        test_url:$("test_url").value,
-        scenarios:state.scenarios?.scenarios || []
-      })
-    });
-    $("playwright-output").textContent = JSON.stringify(x, null, 2);
-    error("");
-  } catch(e) { error(e.message); }
-}
-
-async function health() {
-  try {
-    const x = await api("/health");
-    $("backend-status").textContent = `Backend OK · ${x.model} · App ID: ${x.app_id}`;
-  } catch(e) {
-    $("backend-status").textContent = "Backend route unavailable";
-  }
-}
-
-$("demo").onclick = loadDemo;
-$("impact").onclick = analyze;
-$("suite").onclick = suite;
-$("scenarios").onclick = scenarios;
-$("generate-playwright").onclick = playwright;
-$("run-playwright").onclick = prepareRun;
-
-loadDemo();
-health();
+const state={context:{},impact:null,suite:null,scenarios:null};
+const $=id=>document.getElementById(id);
+const escapeHtml=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+function show(id,msg){$(id).textContent=msg||'';$(id).classList.toggle('hidden',!msg)}
+function context(){return{project_name:$('project_name').value,release:$('release').value,source_changes:$('source_changes').value,user_story:$('user_story').value,defects:$('defects').value,telemetry:$('telemetry').value,previous_results:$('previous_results').value,test_catalog:state.context.test_catalog||[]}}
+function setStep(n,label){document.querySelectorAll('.step').forEach(x=>{const s=+x.dataset.step;x.classList.toggle('active',s===n);x.classList.toggle('done',s<n)});$('pipeline-label').textContent=label}
+function badge(x){return `<span class="badge ${(x||'').toLowerCase().replace(/[^a-z0-9]/g,'')}">${escapeHtml(x)}</span>`}
+function metrics(){const selected=state.suite?.selected_tests||[],deferred=state.suite?.deferred_tests||[],full=Number(state.suite?.full_suite_minutes||0),chosen=Number(state.suite?.estimated_minutes||0);$('stat-impact').textContent=state.impact?.impact_score?`${state.impact.impact_score}/100`:'—';$('stat-confidence').textContent=state.impact?.confidence?`${state.impact.confidence}% confidence`:'Awaiting analysis';$('stat-risk').textContent=(state.impact?.risk_factors||[]).filter(x=>x.severity==='High').length;$('stat-tests').textContent=selected.length;$('stat-deferred').textContent=`${deferred.length} deferred`;if(full){$('stat-time').textContent=`${chosen} min`;$('stat-saving').textContent=`${Math.max(0,Math.round((1-chosen/full)*100))}% less than full suite`}}
+function fill(x){state.context=x;$('project_name').value=x.project_name||'';$('release').value=x.release||'';$('source_changes').value=x.source_changes||'';$('user_story').value=x.user_story||'';$('defects').value=x.defects||'';$('telemetry').value=x.telemetry||'';$('previous_results').value=x.previous_results||''}
+async function loadDemo(){try{fill(await api('/api/demo'));show('error','');show('success','Demo evidence loaded. Ready for AI impact analysis.');setStep(1,'Evidence loaded')}catch(e){show('error',e.message)}}
+async function analyze(){try{state.context=context();const x=await api('/api/analyze-impact',{method:'POST',body:JSON.stringify(state.context)});state.impact=x;$('impact-section').classList.remove('hidden');$('impact-score-chip').textContent=`${x.impact_score??'—'}/100`;$('impact-summary').textContent=x.summary||'';$('modules').innerHTML=(x.impacted_modules||[]).map(m=>`<div class="item"><div class="item-head"><strong>${escapeHtml(m.module)}</strong>${badge(m.impact)}</div><p>${escapeHtml(m.change_evidence)}</p><small>Confidence · ${escapeHtml(m.confidence)}%</small></div>`).join('')||'<div class="item">No impacted modules returned.</div>';$('risks').innerHTML=(x.risk_factors||[]).map(r=>`<div class="item"><div class="item-head"><strong>${escapeHtml(r.risk)}</strong>${badge(r.severity)}</div><p>${escapeHtml(r.evidence)}</p></div>`).join('');$('traceability').innerHTML=(x.traceability||[]).map(t=>`<div class="trace"><span>${escapeHtml(t.change)}</span><b>→</b><span>${escapeHtml(t.module)}</span><b>→</b><span>${escapeHtml(t.risk)}</span></div>`).join('');metrics();setStep(2,'Impact analyzed');show('success','Impact analysis complete. The next decision is the optimized regression suite.');show('error','')}catch(e){show('error',e.message);show('success','')}}
+async function suite(){if(!state.impact)return show('error','Analyze impact first.');try{const x=await api('/api/recommend-suite',{method:'POST',body:JSON.stringify({...context(),impact_analysis:state.impact})});state.suite=x;$('suite-section').classList.remove('hidden');$('suite-strategy').textContent=x.strategy||'';const selected=x.selected_tests||[],deferred=x.deferred_tests||[],full=Number(x.full_suite_minutes||0),chosen=Number(x.estimated_minutes||0),retained=full?Math.round(chosen/full*100):Math.round(selected.length/Math.max(1,selected.length+deferred.length)*100),saving=Math.max(0,100-retained);$('suite-percent').textContent=`${retained}%`;$('saving-percent').textContent=`${saving}%`;$('selected-count').textContent=selected.length;$('deferred-count').textContent=deferred.length;$('selected-bar').style.width=`${retained}%`;$('deferred-bar').style.width=`${100-retained}%`;$('selected-tests').innerHTML=selected.map(t=>`<tr><td>${badge(t.priority)}</td><td>${escapeHtml(t.test_id)} · ${escapeHtml(t.name)}</td><td>${escapeHtml(t.reason)}</td><td>${escapeHtml((t.coverage||[]).join(', '))}</td></tr>`).join('');$('deferred-tests').innerHTML=deferred.map(t=>`<span>${escapeHtml(t.test_id)} · ${escapeHtml(t.reason)}</span>`).join('');metrics();setStep(3,'Suite optimized');show('success',`${selected.length} tests prioritized from the available catalog.`);show('error','')}catch(e){show('error',e.message)}}
+async function scenarios(){if(!state.impact)return show('error','Analyze impact first.');try{state.scenarios=await api('/api/generate-scenarios',{method:'POST',body:JSON.stringify({...context(),impact_analysis:state.impact,selected_tests:state.suite?.selected_tests||[]})});$('scenario-section').classList.remove('hidden');$('playwright-section').classList.remove('hidden');$('generated-scenarios').innerHTML=(state.scenarios.scenarios||[]).map(s=>`<article class="scenario"><div class="item-head"><h3>${escapeHtml(s.id)} · ${escapeHtml(s.title)}</h3>${badge(s.risk)}</div><div class="module">${escapeHtml(s.module)}</div><ol>${(s.steps||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ol><div class="expected"><strong>Expected:</strong> ${escapeHtml(s.expected)}</div></article>`).join('');setStep(4,'Coverage gaps generated');show('success','Additional scenarios generated. Automation handoff is ready.');show('error','')}catch(e){show('error',e.message)}}
+async function playwright(){try{const x=await api('/api/generate-playwright',{method:'POST',body:JSON.stringify({test_url:$('test_url').value,scenarios:state.scenarios?.scenarios||[]})});$('playwright-output').textContent=x.generated_test||'';setStep(5,'Automation generated');show('success','Playwright automation generated from the AI scenarios.');show('error','')}catch(e){show('error',e.message)}}
+async function prepareRun(){try{const x=await api('/api/run-playwright',{method:'POST',body:JSON.stringify({test_url:$('test_url').value,scenarios:state.scenarios?.scenarios||[]})});$('playwright-output').textContent=x.generated_test||JSON.stringify(x,null,2);setStep(5,'Execution prepared')}catch(e){show('error',e.message)}}
+async function health(){try{const x=await api('/health');$('backend-status').innerHTML=`<i style="background:#5de1a2"></i> Backend OK · ${escapeHtml(x.model)}`;}catch(e){$('backend-status').innerHTML='<i></i> Backend unavailable'}}
+function reset(){state.context={};state.impact=null;state.suite=null;state.scenarios=null;['impact-section','suite-section','scenario-section','playwright-section'].forEach(id=>$(id).classList.add('hidden'));show('error','');show('success','');setStep(1,'Ready for evidence');metrics();loadDemo()}
+$('demo').onclick=loadDemo;$('reset').onclick=reset;$('impact').onclick=analyze;$('suite').onclick=suite;$('scenarios').onclick=scenarios;$('generate-playwright').onclick=playwright;$('run-playwright').onclick=prepareRun;loadDemo();health();

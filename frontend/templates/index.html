@@ -1,69 +1,88 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI Regression Intelligence</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RegrAI · Intelligent Regression Control Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/css/app.css">
 </head>
 <body>
-<header class="hero">
-<div>
-<div class="eyebrow">AI IMPACTATHON 2026 · QUALITY ENGINEERING</div>
-<h1>Intelligent Regression Testing</h1>
-<p>Change impact → risk → optimized regression suite → AI scenarios → automation.</p>
-</div>
-<div class="gateway"><b>GENAI HUB</b><span id="backend-status">Checking backend...</span></div>
+<div class="app-shell">
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">R</div><div><div class="brand-name">RegrAI</div><div class="brand-sub">Intelligent Regression Control Center</div></div></div>
+  <div class="top-actions"><span class="pill neutral">AI Impactathon · QE</span><span id="backend-status" class="status"><i></i> Connecting</span></div>
 </header>
-<main>
-<div id="error" class="error hidden"></div>
-<div class="toolbar">
-<button id="demo">Load Demo</button>
-<button id="impact">1. Analyze Impact</button>
-<button id="suite">2. Recommend Suite</button>
-<button id="scenarios">3. Generate Scenarios</button>
-</div>
-<div class="stats">
-<div class="stat"><b id="stat-modules">0</b><span>Impacted modules</span></div>
-<div class="stat"><b id="stat-risk">0</b><span>High risks</span></div>
-<div class="stat"><b id="stat-tests">0</b><span>Selected tests</span></div>
-<div class="stat"><b id="stat-scenarios">0</b><span>Generated scenarios</span></div>
-</div>
-<section class="card">
-<h2>1 · Change & Evidence</h2>
-<label>Project name</label><input id="project_name">
-<label>Source-code changes / diff</label><textarea id="source_changes"></textarea>
-<label>User story</label><textarea id="user_story"></textarea>
-<label>Known defects</label><textarea id="defects"></textarea>
-<label>Application telemetry</label><textarea id="telemetry"></textarea>
-<label>Previous test execution results</label><textarea id="previous_results"></textarea>
+
+<main class="workspace">
+<section class="hero-panel">
+  <div class="hero-copy"><div class="eyebrow">RELEASE INTELLIGENCE</div><h1>Test what changed.<br><span>Prove why it matters.</span></h1><p>AI connects code changes, user intent, defects, telemetry and test history to build a risk-aware regression plan—before the release reaches production.</p>
+    <div class="hero-actions"><button id="demo" class="btn primary">Load live demo scenario <span>→</span></button><button id="reset" class="btn ghost">Reset</button></div>
+  </div>
+  <div class="hero-visual"><div class="orbit"><div class="core">AI<br><small>RISK ENGINE</small></div><div class="node n1">CODE</div><div class="node n2">DEFECTS</div><div class="node n3">TELEMETRY</div><div class="node n4">TEST HISTORY</div></div></div>
 </section>
+
+<section class="pipeline">
+  <div class="pipeline-title"><span>DECISION PIPELINE</span><span id="pipeline-label">Ready for evidence</span></div>
+  <div class="steps"><div class="step active" data-step="1"><b>01</b><span>Evidence</span></div><div class="connector"></div><div class="step" data-step="2"><b>02</b><span>Impact</span></div><div class="connector"></div><div class="step" data-step="3"><b>03</b><span>Suite</span></div><div class="connector"></div><div class="step" data-step="4"><b>04</b><span>Scenarios</span></div><div class="connector"></div><div class="step" data-step="5"><b>05</b><span>Automation</span></div></div>
+</section>
+
+<section class="metrics" id="metrics">
+  <div class="metric"><span>IMPACT SCORE</span><strong id="stat-impact">—</strong><small id="stat-confidence">Awaiting analysis</small></div>
+  <div class="metric"><span>HIGH-RISK SIGNALS</span><strong id="stat-risk">0</strong><small>Evidence-backed</small></div>
+  <div class="metric"><span>TESTS SELECTED</span><strong id="stat-tests">0</strong><small id="stat-deferred">0 deferred</small></div>
+  <div class="metric"><span>EST. EXECUTION</span><strong id="stat-time">—</strong><small id="stat-saving">vs full suite</small></div>
+</section>
+
+<div id="error" class="alert error hidden"></div>
+<div id="success" class="alert success hidden"></div>
+
+<section class="card evidence-card">
+  <div class="section-head"><div><div class="section-kicker">01 · EVIDENCE INTAKE</div><h2>What changed?</h2></div><span class="pill accent">Evidence → Decisions</span></div>
+  <div class="release-row"><div><label>Application</label><input id="project_name" placeholder="Project / application name"></div><div><label>Release</label><input id="release" placeholder="Release or commit range"></div></div>
+  <div class="evidence-grid">
+    <div class="field wide"><label><span class="dot blue"></span> Source-code changes</label><textarea id="source_changes" placeholder="Paste diff summary, changed files or commit description..."></textarea></div>
+    <div class="field"><label><span class="dot purple"></span> User story</label><textarea id="user_story"></textarea></div>
+    <div class="field"><label><span class="dot red"></span> Defect history</label><textarea id="defects"></textarea></div>
+    <div class="field"><label><span class="dot orange"></span> Application telemetry</label><textarea id="telemetry"></textarea></div>
+    <div class="field"><label><span class="dot green"></span> Previous test results</label><textarea id="previous_results"></textarea></div>
+  </div>
+  <div class="action-bar"><div class="microcopy">Uses approved GenAI Hub · mock/public evidence only</div><button id="impact" class="btn primary">Analyze change impact <span>→</span></button></div>
+</section>
+
 <section id="impact-section" class="card hidden">
-<h2>2 · AI Impact Analysis</h2>
-<p id="impact-summary" class="summary"></p>
-<h3>Impacted modules</h3><div id="modules" class="grid"></div>
-<h3>Risk factors</h3><div id="risks"></div>
-<h3>Traceability</h3><div id="traceability"></div>
+  <div class="section-head"><div><div class="section-kicker">02 · AI IMPACT ANALYSIS</div><h2>Where is the release risky?</h2></div><div id="impact-score-chip" class="score-chip">—</div></div>
+  <div id="impact-summary" class="callout"></div>
+  <div class="analysis-grid"><div><h3>Impacted modules</h3><div id="modules" class="stack"></div></div><div><h3>Risk signals</h3><div id="risks" class="stack"></div></div></div>
+  <div class="trace-box"><div class="subhead"><h3>Decision traceability</h3><span>Change → module → risk → evidence</span></div><div id="traceability" class="trace-list"></div></div>
+  <div class="action-bar"><div class="microcopy">Every selection is grounded in the supplied evidence.</div><button id="suite" class="btn primary">Build optimized suite <span>→</span></button></div>
 </section>
+
 <section id="suite-section" class="card hidden">
-<h2>3 · Optimized Regression Suite</h2>
-<p id="suite-strategy" class="summary"></p>
-<div id="selected-tests" class="grid"></div>
+  <div class="section-head"><div><div class="section-kicker">03 · RISK-AWARE SUITE</div><h2>Run less. Cover more risk.</h2></div><span class="pill success-pill">Optimized</span></div>
+  <div id="suite-strategy" class="callout"></div>
+  <div class="suite-layout"><div class="suite-ring"><div><strong id="suite-percent">—</strong><small>of suite retained</small></div></div><div class="suite-bars"><div class="bar-line"><span>Selected</span><div><i id="selected-bar"></i></div><b id="selected-count">0</b></div><div class="bar-line muted"><span>Deferred</span><div><i id="deferred-bar"></i></div><b id="deferred-count">0</b></div><div class="saving-card"><strong id="saving-percent">—</strong><span>estimated execution reduction</span></div></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Priority</th><th>Test</th><th>Why selected</th><th>Coverage</th></tr></thead><tbody id="selected-tests"></tbody></table></div>
+  <div class="deferred"><div class="subhead"><h3>Deferred tests</h3><span>Not connected to current evidence</span></div><div id="deferred-tests" class="deferred-list"></div></div>
+  <div class="action-bar"><div class="microcopy">Prioritization combines impact, known defects, telemetry and test history.</div><button id="scenarios" class="btn primary">Generate missing scenarios <span>→</span></button></div>
 </section>
+
 <section id="scenario-section" class="card hidden">
-<h2>4 · AI-Generated Regression Scenarios</h2>
-<div id="generated-scenarios" class="grid"></div>
+  <div class="section-head"><div><div class="section-kicker">04 · COVERAGE GAP ENGINE</div><h2>What is missing from the suite?</h2></div><span class="pill accent">AI generated</span></div>
+  <div class="scenario-banner"><div class="spark">✦</div><div><strong>AI found additional risk coverage</strong><p>New scenarios target failure modes and journeys surfaced by the evidence.</p></div></div>
+  <div id="generated-scenarios" class="scenario-grid"></div>
 </section>
+
 <section id="playwright-section" class="card hidden">
-<h2>5 · Browser Automation</h2>
-<label>Application / test URL</label>
-<input id="test_url" value="https://example.com">
-<div class="toolbar"><button id="generate-playwright">Generate Playwright</button><button id="run-playwright">Prepare Browser Execution</button></div>
-<pre id="playwright-output"></pre>
+  <div class="section-head"><div><div class="section-kicker">05 · AUTOMATION HANDOFF</div><h2>Turn decisions into executable tests</h2></div><span class="pill neutral">Playwright</span></div>
+  <div class="automation-row"><div><label>Application / test URL</label><input id="test_url" value="https://example.com"></div><div class="automation-actions"><button id="generate-playwright" class="btn primary">Generate Playwright</button><button id="run-playwright" class="btn ghost">Prepare execution</button></div></div>
+  <pre id="playwright-output" class="code-panel">// Generated automation will appear here.</pre>
+  <div class="execution-note"><span>●</span> Browser execution is intentionally separated from generation so deployment can use only approved browser binaries and environments.</div>
 </section>
+
+<section class="principles"><div><span>WHY THIS APPROACH</span><strong>Not a generic test generator.</strong></div><div>✓ Evidence-backed impact analysis</div><div>✓ Risk-aware test selection</div><div>✓ Traceable AI decisions</div><div>✓ Automation-ready output</div></section>
 </main>
-<footer><span>AI Impactathon 2026</span><span>Approved environments + mock/public data only.</span></footer>
-<script src="/static/js/api.js"></script>
-<script src="/static/js/app.js"></script>
-</body>
-</html>
+<footer><span>RegrAI · AI Impactathon 2026</span><span>Approved environments · mock/public data · no client information</span></footer>
+</div>
+<script src="/static/js/api.js"></script><script src="/static/js/app.js"></script>
+</body></html>
